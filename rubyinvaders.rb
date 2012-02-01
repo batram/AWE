@@ -76,16 +76,14 @@ class World
           @dir = :right
       end
       @ilist.each { |i| 
-	                i.move(x,y) 
-	                rand(100) == 2 && pilist.size < 18 ? 
-					  pilist << Projectile.new(i.xpos + 1, i.ypos + 1, 1, :inv) : nil 
-				  } 
+                  i.move(x,y)  
+                  pilist << Projectile.new(i.xpos + 1, i.ypos + 1, 1, :inv) if rand(100) == 2 && pilist.size < 18 
+          } 
     else 
       @gameover = true
     end
-	
-    @ilist.map(&:ypos).max == 28 ? @gameover = true : nil
-	
+  
+    @gameover = true if @ilist.map(&:ypos).max == 28  
   end
   
   def draw
@@ -103,21 +101,21 @@ class World
   end
   
   def fire
-    plist.size < 4 ? plist << Projectile.new(defen.xpos + 1, 29, -1) : nil
+    plist << Projectile.new(defen.xpos + 1, 29, -1) if plist.size < 4
     update
   end
   
   def check_collision(object, kill = :all)
     x = object.xpos
     y = object.ypos
-	
-	if defen.hit(x, y)
-	  @gameover = true
-	  return
+  
+    if defen.hit(x, y)
+      @gameover = true
+      return
     end
-	
+  
     (@blist + (kill == :all ? @ilist : [])).each do |bl| 
-      if bl.hit(x, y)
+    if bl.hit(x, y)
         object.done = true
         return
       end
@@ -132,7 +130,7 @@ class Defender
   def initialize(xpos)
     @xpos = xpos
     @ypos = 30
-	@done = false
+    @done = false
   end
   
   def move(x)
@@ -147,9 +145,7 @@ class Defender
     difx = x - @xpos;
     dify = y - @ypos
     
-    if (0..3).member?(difx) && dify == 0
-	  return true
-	end
+    (0...3).member?(difx) && dify == 0
   end
 
 end
@@ -159,7 +155,7 @@ class Invader
   
   def initialize(ypos, xpos)
     @sp =  [
-	        " .. ",
+          " .. ",
             "/[]\\"
            ]
         
@@ -185,10 +181,7 @@ class Invader
     difx = x - @xpos;
     dify = y - @ypos
     
-    if difx >= 0 && difx < 3  && dify >= 0 && dify < 2
-      @done = true
-    else false
-    end
+    @done = true if difx >= 0 && difx < 3  && dify >= 0 && dify < 2
   end
 end
 
@@ -229,7 +222,7 @@ class Projectile
     @ypos = ypos
     @dir = dir
     @done = false
-	@type = type
+  @type = type
   end
   
   def update
@@ -273,7 +266,7 @@ curses_init do
       end
       if Curses.getch == Curses::Key::BACKSPACE
         wor = World.new
-	  end
+    end
     else 
       case Curses.getch
       when Curses::Key::RIGHT 
@@ -282,8 +275,8 @@ curses_init do
         wor.move(-1) 
       when Curses::Key::UP 
         wor.fire
-	  else 
-	    wor.update
+    else 
+      wor.update
       end
     end 
 
